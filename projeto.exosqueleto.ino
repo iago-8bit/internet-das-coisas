@@ -1,78 +1,34 @@
 #include <Servo.h>
 
-Servo servo;
+const int butonn = 7;  // Pino do botão
+int pos = 0;            // Posição do servo
+int lastButtonState = LOW;  // Estado anterior do botão (usado para detectar mudança)
 
-const int botao1 = 2;
-const int botao2 = 3;
-const int botao3 = 4;
 
-int velocidade;
+Servo servo_9;
 
 void setup()
 {
-  servo.attach(9);
-  Serial.begin(9600);
-  pinMode(botao1, INPUT_PULLUP);
-  pinMode(botao2, INPUT_PULLUP);
-  pinMode(botao3, INPUT_PULLUP);
-  digital.write(botao1, LOW);
-  digital.write(botao2, LOW);
-  digital.write(botao3, LOW);
-  servo.write(0);
+  pinMode(butonn, INPUT);  // Configura o pino do botão como entrada
+  servo_9.attach(9, 500, 2500);  // Controla o servo no pino 9
+  servo_9.write(0);  // Inicializa o servo na posição 0
 }
 
-void loop() {
+void loop()
+{
+  int buttonState = digitalRead(butonn);  // Lê o estado do botão
 
-
-  if (digitalRead(botao1) == HIGH) {
-    Serial.println("Botão 1");
-    velocidade = 15;  // Ajuste a velocidade conforme necessário
-    
-    
-    for (int pos = 0; pos <= 179; pos++) {
-      servo.write(pos);
-      delay(velocidade);  // Atraso igual para o movimento para frente e para trás
-    }
-
-    // Movimento para trás (179 a 0)
-    for (int pos = 179; pos >= 0; pos--) {
-      servo.write(pos);
-      delay(velocidade);  // Atraso igual para o movimento para frente e para trás
+  // Verifica se o botão foi pressionado (muda de LOW para HIGH)
+  if (buttonState == HIGH && lastButtonState == LOW) {
+    delay(50);  // Debounce simples para evitar múltiplos cliques
+    if (pos == 0) {
+      pos = 180; 
+      servo_9.write(pos);  // Atualiza a posição do servo
+    } else {
+      pos = 0;  
+      servo_9.write(pos); 
     }
   }
 
-  if (digitalRead(botao2) == HIGH) {
-    Serial.println("Botão 2");
-    velocidade = 15;  // Ajuste a velocidade conforme necessário
-    
-    // Movimento para frente (0 a 179)
-    for (int pos = 0; pos <= 179; pos++) {
-      servo.write(pos);
-      delay(velocidade);  // Atraso igual para o movimento para frente e para trás
-    }
-
-    // Movimento para trás (179 a 0)
-    for (int pos = 179; pos >= 0; pos--) {
-      servo.write(pos);
-      delay(velocidade);  // Atraso igual para o movimento para frente e para trás
-    }
-  }
-
-  if (digitalRead(botao3) == HIGH) {
-    Serial.println("Botão 3");
-    velocidade = 15;  // Ajuste a velocidade conforme necessário
-    
-
-    // Movimento para frente (0 a 179)
-    for (int pos = 0; pos <= 179; pos++) {
-      servo.write(pos);
-      delay(velocidade);  // Atraso igual para o movimento para frente e para trás
-    }
-
-    // Movimento para trás (179 a 0)
-    for (int pos = 179; pos >= 0; pos--) {
-      servo.write(pos);
-      delay(100);  // Atraso igual para o movimento para frente e para trás
-    }
-  }
+  lastButtonState = buttonState;  // Atualiza o estado anterior do botão
 }
